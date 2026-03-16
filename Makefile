@@ -1,4 +1,4 @@
-.PHONY: help install dev clean build test version-patch version-minor version-major publish create-pr git-clean
+.PHONY: help install dev clean build test version-patch version-minor version-major publish create-pr git-clean docker-build docker-push docker-push-latest
 
 # Default target
 help:
@@ -12,6 +12,9 @@ help:
 	@echo "  version-minor  - Bump minor version and create PR"
 	@echo "  version-major  - Bump major version and create PR"
 	@echo "  publish        - Publish to PyPI (automated via GitHub Actions)"
+	@echo "  docker-build   - Build Docker image locally"
+	@echo "  docker-push    - Build and push Docker image to Docker Hub"
+	@echo "  docker-push-latest - Push Docker image with version and latest tags"
 	@echo "  create-pr      - Create pull request for current changes"
 	@echo "  git-clean      - Clean git history (DESTRUCTIVE)"
 
@@ -69,6 +72,42 @@ create-pr:
 publish: build
 	@echo "Publishing via GitHub Actions - create and push a version tag"
 	@echo "Example: git tag v1.0.0 && git push origin v1.0.0"
+
+# Docker image build
+docker-build:
+	@IMAGE_NAME=$${DOCKER_IMAGE_NAME:-qlik-sense-mcp-server}; \
+	TAG=$${DOCKER_IMAGE_TAG:-$$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')}; \
+	echo "Building $$IMAGE_NAME:$$TAG"; \
+	docker build -t "$$IMAGE_NAME:$$TAG" .
+
+# Docker Hub push (single tag)
+docker-push: docker-build
+	@DOCKERHUB_USER=$${DOCKERHUB_USER:?Set DOCKERHUB_USER}; \
+	IMAGE_NAME=$${DOCKER_IMAGE_NAME:-qlik-sense-mcp-server}; \
+	TAG=$${DOCKER_IMAGE_TAG:-$$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')}; \
+	LOCAL_IMAGE="$$IMAGE_NAME:$$TAG"; \
+	REMOTE_IMAGE="$$DOCKERHUB_USER/$$IMAGE_NAME:$$TAG"; \
+	echo "Tagging $$LOCAL_IMAGE -> $$REMOTE_IMAGE"; \
+	docker tag "$$LOCAL_IMAGE" "$$REMOTE_IMAGE"; \
+	echo "Pushing $$REMOTE_IMAGE"; \
+	docker push "$$REMOTE_IMAGE"
+
+# Docker Hub push (version + latest)
+docker-push-latest: docker-build
+	@DOCKERHUB_USER=$${DOCKERHUB_USER:?Set DOCKERHUB_USER}; \
+	IMAGE_NAME=$${DOCKER_IMAGE_NAME:-qlik-sense-mcp-server}; \
+	TAG=$${DOCKER_IMAGE_TAG:-$$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')}; \
+	LOCAL_IMAGE="$$IMAGE_NAME:$$TAG"; \
+	REMOTE_VERSION="$$DOCKERHUB_USER/$$IMAGE_NAME:$$TAG"; \
+	REMOTE_LATEST="$$DOCKERHUB_USER/$$IMAGE_NAME:latest"; \
+	echo "Tagging $$LOCAL_IMAGE -> $$REMOTE_VERSION"; \
+	docker tag "$$LOCAL_IMAGE" "$$REMOTE_VERSION"; \
+	echo "Tagging $$LOCAL_IMAGE -> $$REMOTE_LATEST"; \
+	docker tag "$$LOCAL_IMAGE" "$$REMOTE_LATEST"; \
+	echo "Pushing $$REMOTE_VERSION"; \
+	docker push "$$REMOTE_VERSION"; \
+	echo "Pushing $$REMOTE_LATEST"; \
+	docker push "$$REMOTE_LATEST"
 
 # Clean git history (DESTRUCTIVE)
 git-clean:
