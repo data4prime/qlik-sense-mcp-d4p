@@ -76,6 +76,50 @@ cd qlik-sense-mcp-d4p
 make dev
 ```
 
+### Update Git Repository
+
+Use this sequence to update an existing local clone to the latest version.
+
+#### macOS / Linux
+
+```bash
+cd /absolute/path/to/qlik-sense-mcp-d4p
+
+# Inspect local changes before updating
+git status
+
+# Fetch all remote refs and tags
+git fetch --all --tags
+
+# Update the current branch
+git pull --rebase
+```
+
+If you want to align to a specific release tag:
+
+```bash
+git fetch --tags
+git checkout v1.4.0
+```
+
+After updating the repository, refresh the local environment as needed:
+
+```bash
+# Python development environment
+make dev
+
+# Rebuild local Docker image
+make docker-build
+```
+
+If you use the remote gateway image or Docker Compose, rebuild/restart after pulling changes:
+
+```bash
+docker compose -f docker-compose.remote.yml up --build -d
+```
+
+If your local branch contains uncommitted changes, commit or stash them before `git pull --rebase`.
+
 ### System Requirements
 
 - Python 3.12+
