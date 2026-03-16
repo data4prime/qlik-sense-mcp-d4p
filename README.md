@@ -236,6 +236,78 @@ mkdir -p certs
 docker build -t qlik-sense-mcp-server .
 ```
 
+### Deploy from Private Docker Hub Repository
+
+Use this sequence when your image is published to a private Docker Hub repository.
+
+1. Authenticate to Docker Hub:
+
+```bash
+docker login
+```
+
+2. Define image coordinates (example):
+
+```bash
+export DOCKERHUB_USER=your-dockerhub-user
+export IMAGE_NAME=qlik-sense-mcp-server
+export IMAGE_TAG=1.4.0
+export IMAGE_REF="$DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG"
+```
+
+3. Pull the image from your private repository:
+
+```bash
+docker pull "$IMAGE_REF"
+```
+
+4. Prepare runtime config (if not already done):
+
+```bash
+cp .env.example .env
+mkdir -p certs
+# copy client.pem, client_key.pem, root.pem into ./certs
+```
+
+5. Start in stdio mode (for local MCP clients such as Claude Desktop/Cursor launched via command):
+
+```bash
+docker run -i --rm \
+  --env-file .env \
+  -v "$(pwd)/certs:/certs:ro" \
+  "$IMAGE_REF"
+```
+
+6. Or start in remote HTTP gateway mode (for remote MCP clients):
+
+```bash
+docker run --rm -d \
+  --name qlik-sense-mcp-remote \
+  --env-file .env \
+  -e MCP_AUTH_TOKEN=replace-with-strong-token \
+  -e MCP_GATEWAY_HOST=0.0.0.0 \
+  -e MCP_GATEWAY_PORT=8080 \
+  -e MCP_GATEWAY_PATH=/mcp \
+  -v "$(pwd)/certs:/certs:ro" \
+  -p 8080:8080 \
+  --entrypoint qlik-sense-mcp-gateway \
+  "$IMAGE_REF"
+```
+
+7. Validate remote gateway:
+
+```bash
+curl http://localhost:8080/healthz
+```
+
+8. If you use Docker Compose and want to force private-registry image without local build:
+
+```bash
+DOCKER_IMAGE_REF="$IMAGE_REF" docker compose -f docker-compose.remote.yml up -d --no-build
+```
+
+Then set in compose file `image: ${DOCKER_IMAGE_REF}` (replace static image value) or export the variable in your shell before startup.
+
 ### Run with Docker (standalone)
 
 ```bash
