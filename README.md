@@ -72,7 +72,7 @@ pip install qlik-sense-mcp-server
 #### From Source (Development)
 ```bash
 git clone https://github.com/data4prime/qlik-sense-mcp-d4p.git
-cd qlik-sense-mcp
+cd qlik-sense-mcp-d4p
 make dev
 ```
 
@@ -218,6 +218,24 @@ The server uses the MCP **stdio** protocol, so the container must always be star
 
 ### Prerequisites
 
+#### macOS
+
+- Install Docker Desktop and ensure `docker` and `docker compose` are available in your shell
+- Use absolute paths under `/Users/<your-user>/...` when configuring Claude Desktop or other MCP clients
+- If you use Docker Desktop file sharing restrictions, make sure the project folder is shared with Docker
+
+#### Linux
+
+- Install Docker Engine plus Docker Compose plugin
+- Verify access without `sudo` or prepend `sudo` to the Docker commands in this README
+- If needed, add your user to the Docker group and re-login:
+
+```bash
+sudo usermod -aG docker "$USER"
+```
+
+#### Common setup
+
 ```bash
 # 1. Copy the environment template and fill in your values
 cp .env.example .env
@@ -230,6 +248,11 @@ cp .env.example .env
 mkdir -p certs
 ```
 
+Notes:
+- The shell examples in this README use POSIX syntax and work as-is in macOS `zsh` and standard Linux shells such as `bash` and `zsh`
+- The bind-mount examples use `$(pwd)`, which works on both macOS and Linux
+- If mounted certificate files are not readable inside the container, verify host-side file permissions before troubleshooting TLS
+
 ### Build the image
 
 ```bash
@@ -239,6 +262,8 @@ docker build -t qlik-sense-mcp-server .
 ### Deploy from Private Docker Hub Repository
 
 Use this sequence when your image is published to a private Docker Hub repository.
+
+On Linux, prepend `sudo` to Docker commands if your user is not configured for rootless access or not in the `docker` group.
 
 1. Authenticate to Docker Hub:
 
@@ -350,6 +375,10 @@ To use the Docker container as the MCP server in a client such as Claude Desktop
 }
 ```
 
+Path notes:
+- macOS example absolute paths usually look like `/Users/<user>/projects/qlik-sense-mcp-d4p/.env`
+- Linux example absolute paths usually look like `/home/<user>/projects/qlik-sense-mcp-d4p/.env`
+
 ### Docker environment variables
 
 All variables from [Configuration](#configuration) are supported.
@@ -426,6 +455,10 @@ X-MCP-Token: <MCP_AUTH_TOKEN>
 
 Use the remote gateway URL and send the bearer token in headers.
 
+Typical config file locations:
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Linux: `~/.config/Claude/claude_desktop_config.json` if your Claude Desktop build uses the standard XDG config path
+
 ```json
 {
   "mcpServers": {
@@ -457,6 +490,10 @@ Quick local test (after `docker compose -f docker-compose.remote.yml up -d`):
 ```
 
 An example file is also available in `claude_desktop_remote.example.json`.
+
+Local URL notes:
+- macOS: `http://localhost:8080/mcp/` is correct when the gateway is published from Docker Desktop to the host
+- Linux: `http://localhost:8080/mcp/` is correct when the container is started with `-p 8080:8080`
 
 Notes:
 - Endpoint path is configurable with `MCP_GATEWAY_PATH` (default `/mcp`).
