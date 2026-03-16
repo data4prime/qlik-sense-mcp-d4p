@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [1.4.1] - 2026-03-16
+
+### Changed
+- Refined README instructions for macOS and Linux, including Docker prerequisites, path conventions, Claude Desktop config locations, and Git update workflow
+- Improved Makefile portability for Linux by introducing configurable `UV` and `DOCKER` commands and documenting `DOCKER='sudo docker'` usage
+- Extended release and deployment documentation for private Docker Hub usage and repository maintenance workflows
+
+### Fixed
+- Corrected repository update examples and release-tag references in the documentation
+- Made `git-clean` prompt shell-compatible with Linux `/bin/sh` environments by replacing `read -p` with a POSIX-safe prompt flow
+
 ## [1.4.0] - 2026-03-16
 
 ### Added
@@ -98,6 +109,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Updated `README.md` with API Reference for new tools and optional environment variables
 - Updated `mcp.json.example` autoApprove list to include new tools
 
+[1.4.1]: https://github.com/data4prime/qlik-sense-mcp-d4p/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/data4prime/qlik-sense-mcp-d4p/compare/v1.3.4...v1.4.0
 [1.3.4]: https://github.com/data4prime/qlik-sense-mcp-d4p/compare/v1.3.3...v1.3.4
 [1.3.2]: https://github.com/data4prime/qlik-sense-mcp-d4p/compare/v1.3.1...v1.3.2
