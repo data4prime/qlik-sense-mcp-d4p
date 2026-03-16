@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [1.4.2] - 2026-03-16
+
+### Changed
+- Added automatic fallback in the Makefile from `uv` to `python3 -m pip` / `python3 -m ...` so development targets work in freshly cloned environments where `uv` is not installed
+- Extended README setup instructions to document the `uv` fallback behavior, Linux/macOS development notes, and updated release examples to `1.4.2`
+
+### Fixed
+- Resolved `make dev` failures on clean Linux environments caused by a hard dependency on the `uv` executable
+
 ## [1.4.1] - 2026-03-16
 
 ### Changed
@@ -109,6 +118,7 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 - Updated `README.md` with API Reference for new tools and optional environment variables
 - Updated `mcp.json.example` autoApprove list to include new tools
 
+[1.4.2]: https://github.com/data4prime/qlik-sense-mcp-d4p/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/data4prime/qlik-sense-mcp-d4p/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/data4prime/qlik-sense-mcp-d4p/compare/v1.3.4...v1.4.0
 [1.3.4]: https://github.com/data4prime/qlik-sense-mcp-d4p/compare/v1.3.3...v1.3.4

@@ -1,4 +1,5 @@
 UV ?= uv
+PYTHON ?= python3
 DOCKER ?= docker
 
 .PHONY: help install dev clean build test version-patch version-minor version-major publish create-pr git-clean docker-build docker-push docker-push-latest
@@ -23,14 +24,23 @@ help:
 	@echo ""
 	@echo "Overrides:"
 	@echo "  UV=<command>           Example: UV='python -m uv'"
+	@echo "  PYTHON=<command>       Example: PYTHON=python3"
 	@echo "  DOCKER=<command>       Example Linux with sudo: DOCKER='sudo docker'"
 
 # Development setup
 install:
-	$(UV) pip install -e .
+	@if $(UV) --version >/dev/null 2>&1; then \
+		$(UV) pip install -e .; \
+	else \
+		$(PYTHON) -m pip install -e .; \
+	fi
 
 dev:
-	$(UV) pip install -e ".[dev]"
+	@if $(UV) --version >/dev/null 2>&1; then \
+		$(UV) pip install -e ".[dev]"; \
+	else \
+		$(PYTHON) -m pip install -e ".[dev]"; \
+	fi
 
 # Clean build artifacts
 clean:
@@ -42,26 +52,46 @@ clean:
 
 # Build package
 build: clean
-	$(UV) run python -m build
+	@if $(UV) --version >/dev/null 2>&1; then \
+		$(UV) run python -m build; \
+	else \
+		$(PYTHON) -m build; \
+	fi
 
 # Run tests
 test:
-	$(UV) run pytest tests/ -v
+	@if $(UV) --version >/dev/null 2>&1; then \
+		$(UV) run pytest tests/ -v; \
+	else \
+		$(PYTHON) -m pytest tests/ -v; \
+	fi
 
 # Version bumping with PR creation
 version-patch:
 	@echo "Bumping patch version..."
-	$(UV) run bump2version patch
+	@if $(UV) --version >/dev/null 2>&1; then \
+		$(UV) run bump2version patch; \
+	else \
+		$(PYTHON) -m bumpversion patch; \
+	fi
 	$(MAKE) create-pr
 
 version-minor:
 	@echo "Bumping minor version..."
-	$(UV) run bump2version minor
+	@if $(UV) --version >/dev/null 2>&1; then \
+		$(UV) run bump2version minor; \
+	else \
+		$(PYTHON) -m bumpversion minor; \
+	fi
 	$(MAKE) create-pr
 
 version-major:
 	@echo "Bumping major version..."
-	$(UV) run bump2version major
+	@if $(UV) --version >/dev/null 2>&1; then \
+		$(UV) run bump2version major; \
+	else \
+		$(PYTHON) -m bumpversion major; \
+	fi
 	$(MAKE) create-pr
 
 # Create pull request

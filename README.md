@@ -76,6 +76,11 @@ cd qlik-sense-mcp-d4p
 make dev
 ```
 
+Notes:
+- `uv` is supported but not required
+- If `uv` is not installed, the Makefile automatically falls back to `python3 -m pip`
+- On Linux you can force a specific interpreter, for example: `make dev PYTHON=python3`
+
 ### Update Git Repository
 
 Use this sequence to update an existing local clone to the latest version.
@@ -99,7 +104,7 @@ If you want to align to a specific release tag:
 
 ```bash
 git fetch --tags
-git checkout v1.4.1
+git checkout v1.4.2
 ```
 
 After updating the repository, refresh the local environment as needed:
@@ -111,6 +116,8 @@ make dev
 # Rebuild local Docker image
 make docker-build
 ```
+
+`make dev` will use `uv` when available; otherwise it falls back automatically to `python3 -m pip install -e ".[dev]"`.
 
 If you use the remote gateway image or Docker Compose, rebuild/restart after pulling changes:
 
@@ -320,7 +327,7 @@ docker login
 ```bash
 export DOCKERHUB_USER=your-dockerhub-user
 export IMAGE_NAME=qlik-sense-mcp-server
-export IMAGE_TAG=1.4.1
+export IMAGE_TAG=1.4.2
 export IMAGE_REF="$DOCKERHUB_USER/$IMAGE_NAME:$IMAGE_TAG"
 ```
 
@@ -953,6 +960,8 @@ make help
 make build
 ```
 
+If `uv` is not available in the current shell, these Make targets automatically fall back to `python3`-based commands.
+
 ### Version Management
 
 ```bash
@@ -1107,6 +1116,6 @@ SOFTWARE.
 
 ---
 
-**Project Status**: Production Ready | 10/10 Tools Working | v1.4.1
+**Project Status**: Production Ready | 10/10 Tools Working | v1.4.2
 
 **Installation**: `uvx qlik-sense-mcp-server`
