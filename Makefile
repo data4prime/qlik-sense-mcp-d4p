@@ -82,7 +82,8 @@ docker-build:
 
 # Docker Hub push (single tag)
 docker-push: docker-build
-	@DOCKERHUB_USER=$${DOCKERHUB_USER:?Set DOCKERHUB_USER}; \
+	@DOCKERHUB_USER=$${DOCKERHUB_USER:-$${DOCKERHUB:-}}; \
+	if [ -z "$$DOCKERHUB_USER" ]; then echo "Set DOCKERHUB_USER (or DOCKERHUB)"; exit 1; fi; \
 	IMAGE_NAME=$${DOCKER_IMAGE_NAME:-qlik-sense-mcp-server}; \
 	TAG=$${DOCKER_IMAGE_TAG:-$$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')}; \
 	LOCAL_IMAGE="$$IMAGE_NAME:$$TAG"; \
@@ -94,7 +95,8 @@ docker-push: docker-build
 
 # Docker Hub push (version + latest)
 docker-push-latest: docker-build
-	@DOCKERHUB_USER=$${DOCKERHUB_USER:?Set DOCKERHUB_USER}; \
+	@DOCKERHUB_USER=$${DOCKERHUB_USER:-$${DOCKERHUB:-}}; \
+	if [ -z "$$DOCKERHUB_USER" ]; then echo "Set DOCKERHUB_USER (or DOCKERHUB)"; exit 1; fi; \
 	IMAGE_NAME=$${DOCKER_IMAGE_NAME:-qlik-sense-mcp-server}; \
 	TAG=$${DOCKER_IMAGE_TAG:-$$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')}; \
 	LOCAL_IMAGE="$$IMAGE_NAME:$$TAG"; \

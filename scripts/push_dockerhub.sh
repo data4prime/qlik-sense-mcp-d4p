@@ -4,6 +4,7 @@ set -euo pipefail
 # Push project Docker image to Docker Hub.
 # Usage:
 #   DOCKERHUB_USER=<user> ./scripts/push_dockerhub.sh
+#   DOCKERHUB=<user> ./scripts/push_dockerhub.sh
 # Optional:
 # DOCKER_IMAGE_NAME=qlik-sense-mcp-server
 # DOCKER_IMAGE_TAG=1.0.0
@@ -17,7 +18,11 @@ if [[ -f .dockerhub.env ]]; then
   source .dockerhub.env
 fi
 
-: "${DOCKERHUB_USER:?Set DOCKERHUB_USER (env var or .dockerhub.env)}"
+DOCKERHUB_USER="${DOCKERHUB_USER:-${DOCKERHUB:-}}"
+if [[ -z "${DOCKERHUB_USER}" ]]; then
+  echo "Set DOCKERHUB_USER (or DOCKERHUB) via env var or .dockerhub.env" >&2
+  exit 1
+fi
 
 DOCKER_IMAGE_NAME="${DOCKER_IMAGE_NAME:-qlik-sense-mcp-server}"
 DOCKER_IMAGE_TAG="${DOCKER_IMAGE_TAG:-$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')}"
