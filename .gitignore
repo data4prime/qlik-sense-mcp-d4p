@@ -185,3 +185,4 @@ claude.md
 # Docker Hub local publish config
 .dockerhub.env
 .dockerhub.local.env
+uv.lock
